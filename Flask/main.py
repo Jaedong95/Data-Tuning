@@ -17,27 +17,35 @@ def upload_data():
     Data Tuning 할 데이터세트를 내 PC에서 Upload 
     '''
     global updb 
+    task_flag = 11 
     updb = UPLOADDB(args1)
     updb.connect()
     annot_check = 9999 
     not_tagged = None 
-    
+    filename = '' 
     if request.method == 'POST':
-        file = request.files['upload']   
-        if file:
-            filename = file.filename
-            new_filename = "'" + filename + "'"
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            print(f'upload: {new_filename}')
-            
-            updb.save_file_info(new_filename)
-            updb.save_data(os.path.join(upload_folder_dir, filename))
-            # updb.close_session()
-            return render_template("upload_data.html", annot_check=annot_check, not_tagged=not_tagged, task_flag=task_flag)
-    return render_template("upload_data.html", annot_check=annot_check, not_tagged=not_tagged,)
+        try:
+            file = request.files['upload']   
+            if file:
+                filename = file.filename
+                new_filename = "'" + filename + "'"
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                print(f'upload: {new_filename}')
+                
+                updb.save_file_info(new_filename)
+                updb.save_data(os.path.join(upload_folder_dir, filename))
+                # updb.close_session()
+        except:
+            request.form['check_annot']
+            annot_check = 0 
+            filename = updb.get_filename()
+            not_tagged_list = updb.get_not_tagged()
+            not_tagged = [nt[0] for nt in not_tagged_list]
+    return render_template("upload_data.html", annot_check=annot_check, filename=filename, not_tagged=not_tagged)
 
 @app.route('/upload_data/<int:question_no>', methods=['GET', 'POST'])
 def upload_index(question_no):
+    task_flag = 11
     data_len = updb.get_len()
     txt = updb.get_txt(question_no - 1)
     annot = int(updb.get_annot(question_no - 1))
@@ -49,19 +57,19 @@ def upload_index(question_no):
         except:
             try:
                 request.form['update']
-                updb.update_db(question_no - 1)
-                annot = int(dsmdb.get_annot(data_idx))
+                updb.update_db(data_idx)
+                annot = int(updb.get_annot(data_idx))
             except:
                 annot_val = request.form['radioOpt']
                 # print(annot_val)
-                updb.save_annot(question_no - 1, annot_val)
+                updb.save_annot(data_idx, annot_val)
                 annot = int(updb.get_annot(data_idx))
     if question_no == 1:
-        return render_template('task1_s.html', txt=txt, question_no=question_no, data_len=data_len, annot=annot)
+        return render_template('task1_s.html', txt=txt, question_no=question_no, data_len=data_len, annot=annot, task_flag=task_flag)
     elif question_no == data_len:
-        return render_template('task1_e.html', txt=txt, question_no=question_no, data_len=data_len, annot=annot)
+        return render_template('task1_e.html', txt=txt, question_no=question_no, data_len=data_len, annot=annot, task_flag=task_flag)
     else:
-        return render_template('task1_m.html', txt=txt, question_no=question_no, data_len=data_len, annot=annot)
+        return render_template('task1_m.html', txt=txt, question_no=question_no, data_len=data_len, annot=annot, task_flag=task_flag)
 
 
 @app.route('/dsm_data', methods=['GET', 'POST'])
@@ -69,8 +77,6 @@ def select_criteria():
     '''
     9가지 Criteria 중 Tuning 할 데이터세트 선택 
     '''
-    global task_flag 
-    task_flag = 10 
     global dsmdb
     dsmdb = DSMDB(args1)
     dsmdb.connect()    # MySQL 연동 
@@ -92,10 +98,11 @@ def select_criteria():
             not_tagged_list = dsmdb.get_not_tagged(criteria)
             not_tagged = [nt[0] for nt in not_tagged_list]
             # print(not_tagged)
-    return render_template('dsm_data.html',criteria=criteria, annot_check=annot_check, not_tagged=not_tagged, task_flag=task_flag)
+    return render_template('dsm_data.html',criteria=criteria, annot_check=annot_check, not_tagged=not_tagged)
 
 @app.route('/dsm_data/<int:question_no>', methods=['GET', 'POST'])
 def index(question_no):
+    task_flag = 10
     dsmdb.get_dsm_criteria()
     criteria = dsmdb.dsm_criteria
     label = dsm_label[criteria]
@@ -120,13 +127,13 @@ def index(question_no):
                 annot = int(dsmdb.get_annot(mapping_idx))
     if question_no == 1:
         return render_template('task1_s.html', criteria=criteria, label=label, txt=txt, \
-                               question_no=question_no, data_len=data_len, annot=annot)
+                               question_no=question_no, data_len=data_len, annot=annot, task_flag=task_flag)
     elif question_no == data_len:
         return render_template('task1_e.html', criteria=criteria, label=label, txt=txt, \
-                               question_no=question_no, data_len=data_len, annot=annot)
+                               question_no=question_no, data_len=data_len, annot=annot, task_flag=task_flag)
     else:
         return render_template('task1_m.html', criteria=criteria, label=label, txt=txt, \
-                               question_no=question_no, data_len=data_len, annot=annot)
+                               question_no=question_no, data_len=data_len, annot=annot, task_flag=task_flag)
 
 @app.route('/', methods=['GET', 'POST'])
 def main_page():
@@ -135,6 +142,7 @@ def main_page():
     '''
     global args1
     global args2 
+    global task_flag
 
     with open(os.path.join(cli_argse.config_path, cli_argse.task1_db)) as f:
         args1 = AttrDict(json.load(f))

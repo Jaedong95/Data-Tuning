@@ -121,7 +121,7 @@ class UPLOADDB():
         self.dsm_data = self.execute_sql(sql)
     
     def get_filename(self):
-        sql = 'SELECT file_name FROM check_upload;'
+        sql = 'SELECT filename FROM check_upload;'
         filename = self.execute_sql(sql)[0][0]
         return filename
 

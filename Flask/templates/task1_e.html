@@ -170,7 +170,11 @@
             </div>
             <div class="col text-lg-end text-center mt-3">
                 <button type="button" class="btn btn-outline-dark m-1" style="float:right; background-color:dimgrey;" disabled>▶</button>
+                {% if task_flag == 10 %} 
                 <form action="/dsm_data/{{question_no-1}}">
+                {% elif task_flag == 11 %}
+                <form action="/upload_data/{{question_no-1}}">
+                {% endif %}
                     <button type="submit" class="btn btn-outline-dark m-1" style="float:right">◀</button>
                 </form>
             </div>

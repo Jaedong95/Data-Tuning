@@ -51,15 +51,14 @@
             </div>
             <button type="submit" class="btn btn-outline-dark btn-sm mt-1" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-content="Bottom popover">Upload</button>
         </form>
-    
     </div> 
     <div class="container-md mt-5 column-gap-2">
-        <form action="/dsm_data" method="post">
+        <form action="/upload_data" method="post">
             <!--input class="btn btn-outline-dark m-1" type="button" name="result" value="Result" style="float:right; background-color:whitesmoke;"-->
             <button type="submit" class="btn btn-outline-dark m-1" style="float:right">Result</button>
             <input class="form-check-input m-2 mt-3" type="radio" name="check_annot" id="check_annot" value="0" style="float:right; background-color: whitesmoke;" aria-label="...">      
         </form>
-        <form action="/dsm_data/1">
+        <form action="/upload_data/1">
             <button type="submit" class="btn btn-outline-dark m-1" style="float:right">Start</button>
         </form>
     </div>
@@ -67,7 +66,7 @@
     <div class="container-sm mt-5"> <!--style="border: 1px solid black"-->
         <div class="row justify-content-md-center">
             <div class="col col-md-auto">
-                <p class="fs-6 fw-bold mt-5">[Not Annotated idx list of Criteria A{{criteria+1}}]</p>
+                <p class="fs-6 fw-bold mt-5">[Not Annotated idx list pf {{filename}}]</p>
                 <p class="fs-6 mt-1">{{not_tagged}}</p>
             </div>
         </div>
